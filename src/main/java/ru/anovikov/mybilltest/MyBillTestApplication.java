@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.util.UUID;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.*;
@@ -39,9 +40,7 @@ public class MyBillTestApplication {
         cmd.setAdd(add);
 
         try {
-            String cmdString = URLEncoder.encode(mapper.writeValueAsString(cmd), "UTF-8");
-            cmdString = cmdString.replace("%22", "%5C%22");
-            cmdString = cmdString.replace("%3A", ":");
+            String cmdString = URLEncoder.encode(mapper.writeValueAsString(cmd), "UTF-8").replace("%22", "%5C%22").replace("%3A", ":");
             System.out.println(cmdString);
 
             msg.setCmd(cmdString);
@@ -65,6 +64,13 @@ public class MyBillTestApplication {
             in.close();
 
             System.out.println(response.toString());
+
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            MyBillCommandRes res = objectMapper.readValue(response.toString(), MyBillCommandRes.class);
+            System.out.println(res.getData());
+
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -86,9 +92,24 @@ public class MyBillTestApplication {
 
     private static MyBillAddBonusReq createMyBillAddBonusReq () {
         MyBillAddBonusReq req = new MyBillAddBonusReq();
-        req.setAmount(200);
-        //req.setGuid("9803d32e-8fcd-4984-a736-9f02f726b3c0");
-        req.setPhone("+79777573300");
+        DBLoyaltyAddBonus bns;
+
+        try {
+            String bnsStr = "{ \"messageKey\" : null, \"clientPhone\" : \"+79777573300\", \"amount\":10.0 }";
+            ObjectMapper objectMapper = new ObjectMapper();
+            bns = objectMapper.readValue(bnsStr, DBLoyaltyAddBonus.class);
+
+            UUID uuid = UUID.randomUUID();
+            req.setAmount(bns.getAmount());
+            req.setGuid(uuid.toString());
+            req.setPhone(bns.getClientPhone());
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return req;
     }

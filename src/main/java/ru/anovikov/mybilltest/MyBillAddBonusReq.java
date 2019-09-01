@@ -16,7 +16,7 @@ public class MyBillAddBonusReq {
     public void setAmount(float amount) {
         this.amount = amount;
     }
-/*
+
     public String getGuid() {
         return guid;
     }
@@ -24,7 +24,6 @@ public class MyBillAddBonusReq {
     public void setGuid(String guid) {
         this.guid = guid;
     }
-*/
 /*
     public String getEmail() {
         return email;
@@ -51,7 +50,7 @@ public class MyBillAddBonusReq {
     }
 */
     private float amount;
-    // private String guid;
+    private String guid;
     //private String email;
     private String phone;
     //private String uniqId;
