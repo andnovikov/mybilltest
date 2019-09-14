@@ -1,6 +1,5 @@
 package ru.anovikov.mybilltest;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +8,6 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.util.UUID;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -31,10 +28,10 @@ public class MyBillTestApplication {
         msg.setLogin(login);
         msg.setPasswd(pass);
 
-        MyBillAddBonusCommandReq cmd = new MyBillAddBonusCommandReq();
+        MyBillAddCustomerPointMessageCommandReq cmd = new MyBillAddCustomerPointMessageCommandReq();
 
-        MyBillAddBonusReq req = createMyBillAddBonusReq();
-        List<MyBillAddBonusReq> add = new ArrayList();
+        MyBillAddCustomerPointMessageReq req = createMyBillAddCustomerPointMessageReq();
+        List<MyBillAddCustomerPointMessageReq> add = new ArrayList();
 
         add.add(req);
         cmd.setAdd(add);
@@ -56,7 +53,7 @@ public class MyBillTestApplication {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
@@ -71,6 +68,9 @@ public class MyBillTestApplication {
             MyBillCommandRes res = objectMapper.readValue(response.toString(), MyBillCommandRes.class);
             System.out.println(res.getData());
 
+            MyBillAddCustomerPointMessageCommandRes cmdRes = objectMapper.readValue(res.getData(), MyBillAddCustomerPointMessageCommandRes.class);
+            System.out.println(cmdRes.getResults().get(0).getGuid());
+
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -82,10 +82,24 @@ public class MyBillTestApplication {
 
     private static MyBillAddBonusExtQuickReq createMyBillAddBonusExtQuickReq () {
         MyBillAddBonusExtQuickReq req = new MyBillAddBonusExtQuickReq();
-        req.setAmount(200);
-        req.setGuid("9803d32e-8fcd-4984-a736-9f02f726b3c0");
-        req.setPhone("+79777573300");
-        req.setInfo("Дополнительная информация");
+        DBLoyaltyAddBonus bns;
+
+        try {
+            String bnsStr = "{ \"messageKey\" : null, \"clientPhone\" : \"+79777573300\", \"amount\":10.0 }";
+            ObjectMapper objectMapper = new ObjectMapper();
+            bns = objectMapper.readValue(bnsStr, DBLoyaltyAddBonus.class);
+
+            UUID uuid = UUID.randomUUID();
+            req.setAmount(bns.getAmount());
+            req.setGuid(uuid.toString());
+            req.setPhone(bns.getClientPhone());
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return req;
     }
@@ -110,6 +124,34 @@ public class MyBillTestApplication {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return req;
+    }
+
+    private static MyBillAddCustomerPointMessageReq createMyBillAddCustomerPointMessageReq () {
+        MyBillAddCustomerPointMessageReq req = new MyBillAddCustomerPointMessageReq();
+
+        req.setUniqId("123456789");
+        req.setPhone("+788002000601");
+        req.setEmail("788002000601@nvk.ru");
+        /*
+        "amount":200.00,
+                "guid":"9803d32e-8fcd-4984-a736-9f02f726b3c0",
+                "email":null,
+                "phone":null,
+                "uniqId":"12345678",
+                "info":"Сообщение для покупателя"
+        "showCount":3
+        "showTill":"2019-10-23T18:25:43.511Z"
+        "eventId":"123456",
+                "eventDate":"2015-01-01T00:00:00+03",
+                "eventType":"operation",
+                "operationType":"purchase",
+                "operationAmount":100.0000,
+                "merchantName":"ЦУМ",
+                "bankProduct":"Золотая карта"
+        "mcc":"АЗС",
+*/
 
         return req;
     }

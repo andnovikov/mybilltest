@@ -3,6 +3,8 @@ package ru.anovikov.mybilltest;
 public class MyBillCommandReq {
 
     private String login;
+    private String passwd;
+    private String cmd;
 
     public String getLogin() {
         return login;
@@ -27,7 +29,4 @@ public class MyBillCommandReq {
     public void setCmd(String cmd) {
         this.cmd = cmd;
     }
-
-    private String passwd;
-    private String cmd;
 }

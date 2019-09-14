@@ -20,5 +20,5 @@ public class MyBillAddBonusCommandReq {
     }
 
     private List<MyBillAddBonusReq> add;
-    private String typeOfCommand = "addBonus";
+    private String typeOfCommand = "addBonus";// "addBonus";
 }
